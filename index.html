@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b25">
+  <title>Cipher_X | أكاديمية الأمن السيبراني</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #182722;
+      --muted: #68766f;
+      --paper: #f1f4ef;
+      --surface: #fbfcf9;
+      --line: #dce3dc;
+      --forest: #142b25;
+      --forest-soft: #23453a;
+      --lime: #c8f169;
+      --lime-dark: #537522;
+      --coral: #e9775c;
+      --mono: "IBM Plex Mono", monospace;
+      --sans: "IBM Plex Sans Arabic", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#c5d0c7 0.7px, transparent 0.7px);
+      background-size: 18px 18px;
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .browser {
+      width: min(1440px, calc(100% - 40px));
+      margin: 24px auto;
+      overflow: hidden;
+      border: 1px solid #1b342d;
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: 0 24px 70px #18312824, 0 3px 10px #18312812;
+      animation: arrive .45s ease-out both;
+    }
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chrome-top { background: var(--forest); color: #f3f6ef; }
+    .tab-strip {
+      height: 44px;
+      display: flex;
+      align-items: end;
+      padding: 0 14px;
+      gap: 8px;
+      border-bottom: 1px solid #ffffff17;
+    }
+    .window-dots { display: flex; gap: 6px; align-self: center; margin-inline-start: 6px; }
+    .window-dots i { width: 9px; height: 9px; display: block; border-radius: 50%; background: #e9775c; }
+    .window-dots i:nth-child(2) { background: #e5ba5d; }
+    .window-dots i:nth-child(3) { background: #88b95e; }
+    .tab {
+      width: min(280px, 45vw);
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 13px;
+      border: 1px solid #ffffff1b;
+      border-bottom-color: var(--surface);
+      border-radius: 7px 7px 0 0;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 12px;
+    }
+    .tab-mark {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      background: var(--forest);
+      color: var(--lime);
+      font: 600 10px var(--mono);
+      direction: ltr;
+    }
+    .tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tab-close { margin-inline-start: auto; color: #79837d; }
+    .tab-add {
+      width: 30px;
+      height: 30px;
+      align-self: center;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #d0d9d1;
+      font-size: 20px;
+      cursor: default;
+    }
+    .browser-controls {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 58px;
+      padding: 9px 16px 12px;
+    }
+    .control-button {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 0;
+      border-radius: 7px;
+      color: #e6ebe5;
+      background: transparent;
+      cursor: pointer;
+      font-size: 19px;
+    }
+    .control-button:hover:not(:disabled) { background: #ffffff17; }
+    .control-button:disabled { color: #72827a; cursor: default; }
+    .address-bar {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex: 1;
+      min-width: 0;
+      padding: 0 12px;
+      border: 1px solid #ffffff21;
+      border-radius: 7px;
+      background: #0e211c;
+      color: #a2b3a8;
+    }
+    .lock-mark { color: var(--lime); font-size: 13px; }
+    .address-text {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: #d5e0d7;
+      background: transparent;
+      direction: ltr;
+      text-align: left;
+      font: 12px var(--mono);
+    }
+    .key-hint { color: #74847a; font: 10px var(--mono); direction: ltr; white-space: nowrap; }
+    .app-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 19px 28px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcf9;
+    }
+    .brand-group { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--lime);
+      background: var(--forest);
+      font: 600 13px var(--mono);
+      direction: ltr;
+      box-shadow: 4px 4px 0 #dce8c2;
+    }
+    .brand-title { margin: 0; font: 600 18px var(--mono); letter-spacing: 0; direction: ltr; }
+    .brand-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
+    .head-meta { display: flex; align-items: center; gap: 18px; }
+    .edition { color: var(--muted); font: 10px var(--mono); direction: ltr; white-space: nowrap; }
+    .search-wrap {
+      width: min(300px, 30vw);
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--muted);
+    }
+    .search-wrap:focus-within { border-color: #839f63; box-shadow: 0 0 0 3px #c8f1693b; }
+    .search-icon { font-size: 16px; }
+    .search-input { width: 100%; border: 0; outline: 0; background: transparent; font-size: 12px; }
+    .search-input::placeholder { color: #8b9790; }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 40px;
+      padding: 0 28px;
+      background: #f4f7f1;
+      border-bottom: 1px solid var(--line);
+    }
+    .progress-label { color: #617067; font-size: 10px; white-space: nowrap; }
+    .progress-track { height: 5px; flex: 1; overflow: hidden; border-radius: 8px; background: #dce4d9; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: #80a741; transition: width .35s ease; }
+    .progress-count { min-width: 44px; color: var(--forest); font: 11px var(--mono); direction: ltr; text-align: left; }
+    .workspace { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 680px; }
+    .sidebar {
+      padding: 24px 17px 20px;
+      border-left: 1px solid var(--line);
+      background: #f6f8f4;
+    }
+    .side-label { margin: 0 9px 12px; color: #829087; font: 10px var(--mono); direction: ltr; text-align: right; }
+    .module-nav { display: grid; gap: 4px; }
+    .module-link {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      text-align: right;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .module-link:hover { background: #eef3e9; }
+    .module-link.active { border-color: #dfe9d3; background: #eaf2df; }
+    .module-num { width: 27px; height: 27px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 5px; color: #5d6b62; background: #e7ece5; font: 10px var(--mono); direction: ltr; }
+    .module-link.active .module-num { color: var(--forest); background: var(--lime); }
+    .module-link.done .module-num { color: #fff; background: #557d40; }
+    .module-link-title { flex: 1; color: #35443b; font-size: 11px; line-height: 1.45; }
+    .done-tick { color: #557d40; font-size: 12px; }
+    .sidebar-note { margin: 25px 8px 0; padding-top: 16px; border-top: 1px solid var(--line); }
+    .note-tag { display: flex; align-items: center; gap: 7px; color: #78857b; font-size: 10px; }
+    .note-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+    .sidebar-note p { margin: 9px 0 0; color: #768179; font-size: 10px; line-height: 1.8; }
+    .content { min-width: 0; padding: 34px clamp(22px, 5vw, 70px) 55px; }
+    .content-inner { max-width: 820px; margin: 0 auto; }
+    .article-topline { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+    .unit-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--lime-dark); font: 10px var(--mono); direction: ltr; }
+    .unit-tag::before { width: 17px; height: 2px; content: ""; background: var(--coral); }
+    .reading-time { color: #8a958d; font-size: 10px; }
+    .article-title { max-width: 720px; margin: 0; font-size: clamp(25px, 3vw, 37px); line-height: 1.35; letter-spacing: 0; }
+    .article-lead { max-width: 720px; margin: 16px 0 0; color: #607067; font-size: 14px; line-height: 1.95; }
+    .article-rule { display: flex; align-items: center; gap: 10px; margin: 28px 0 24px; color: #9aa49c; font: 9px var(--mono); direction: ltr; }
+    .article-rule::after { height: 1px; flex: 1; content: ""; background: var(--line); }
+    .lesson-section { padding: 0 0 24px; margin: 0 0 25px; border-bottom: 1px solid var(--line); animation: reveal .25s ease both; }
+    @keyframes reveal { from { opacity: .5; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .lesson-section h2 { margin: 0 0 10px; font-size: 16px; line-height: 1.6; }
+    .lesson-section p { margin: 0 0 10px; color: #56655b; font-size: 12px; line-height: 1.95; }
+    .lesson-section ul { display: grid; gap: 7px; margin: 10px 0 0; padding: 0 18px 0 0; color: #56655b; font-size: 12px; line-height: 1.8; }
+    .lesson-section li::marker { color: #84a947; }
+    .code-block {
+      margin: 13px 0 0;
+      overflow-x: auto;
+      padding: 13px 15px;
+      border: 1px solid #26443a;
+      border-radius: 6px;
+      background: #142b25;
+      color: #d7e7d7;
+      direction: ltr;
+      text-align: left;
+      white-space: pre-wrap;
+      font: 11px/1.8 var(--mono);
+      unicode-bidi: plaintext;
+    }
+    .callout {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin: 22px 0;
+      padding: 14px 15px;
+      border-right: 3px solid var(--coral);
+      background: #fff4ef;
+      color: #62483f;
+      font-size: 11px;
+      line-height: 1.85;
+    }
+    .callout-mark { flex: 0 0 auto; color: var(--coral); font: 600 13px var(--mono); direction: ltr; }
+    .article-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 30px; }
+    .complete-button, .next-button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 15px;
+      border: 1px solid var(--forest);
+      border-radius: 5px;
+      background: var(--forest);
+      color: #f7f9f4;
+      font-size: 11px;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .complete-button:hover, .next-button:hover { transform: translateY(-1px); background: #24483b; }
+    .complete-button[aria-pressed="true"] { border-color: #78984b; background: #eaf2df; color: #49682a; }
+    .next-button { border-color: var(--line); background: transparent; color: var(--ink); }
+    .next-button:hover { background: #f0f3ed; }
+    .search-results { display: none; }
+    .search-results.show { display: block; }
+    .search-result {
+      width: 100%;
+      display: block;
+      padding: 14px 2px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      text-align: right;
+      cursor: pointer;
+    }
+    .search-result:hover .result-title { color: var(--lime-dark); }
+    .result-title { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; }
+    .result-snippet { display: block; color: #6b786f; font-size: 11px; line-height: 1.7; }
+    mark { padding: 0 2px; border-radius: 2px; background: #e4f4bd; color: inherit; }
+    .empty-state { padding: 28px 0; color: #78857c; font-size: 12px; }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 25px;
+      border-top: 1px solid var(--line);
+      color: #849087;
+      background: #f7f9f5;
+      font: 9px var(--mono);
+      direction: ltr;
+    }
+    .footer span:last-child { direction: rtl; font: 10px var(--sans); }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 760px) {
+      .browser { width: calc(100% - 16px); margin: 8px auto; border-radius: 8px; }
+      .window-dots { display: none; }
+      .tab-strip { padding: 0 8px; }
+      .browser-controls { gap: 3px; padding: 8px; }
+      .control-button { width: 30px; }
+      .key-hint { display: none; }
+      .app-head { align-items: flex-start; flex-direction: column; padding: 15px 17px; gap: 13px; }
+      .head-meta { width: 100%; justify-content: space-between; }
+      .search-wrap { width: min(66%, 320px); }
+      .progress-row { padding: 0 17px; }
+      .workspace { grid-template-columns: 1fr; min-height: 0; }
+      .sidebar { padding: 15px 13px 12px; border-left: 0; border-bottom: 1px solid var(--line); }
+      .module-nav { display: flex; overflow-x: auto; gap: 5px; padding-bottom: 4px; scrollbar-width: thin; }
+      .side-label, .sidebar-note { display: none; }
+      .module-link { width: max-content; min-width: max-content; min-height: 37px; padding: 5px 8px; gap: 7px; }
+      .module-num { width: 23px; height: 23px; }
+      .module-link-title { font-size: 10px; }
+      .done-tick { display: none; }
+      .content { padding: 25px 19px 36px; }
+      .article-title { font-size: 26px; }
+      .footer { padding: 11px 15px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="browser">
+    <div class="chrome-top">
+      <div class="tab-strip" aria-label="شريط علامات التبويب">
+        <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div class="tab"><span class="tab-mark">CX</span><span class="tab-name">Cipher_X | أكاديمية الأمن السيبراني</span><span class="tab-close" aria-hidden="true">×</span></div>
+        <button class="tab-add" type="button" aria-label="علامة تبويب جديدة" title="علامة تبويب جديدة">+</button>
+      </div>
+      <div class="browser-controls">
+        <button class="control-button" id="backButton" type="button" aria-label="السابق" title="السابق" disabled>‹</button>
+        <button class="control-button" id="forwardButton" type="button" aria-label="التالي" title="التالي" disabled>›</button>
+        <button class="control-button" id="refreshButton" type="button" aria-label="تحديث الصفحة" title="تحديث الصفحة">↻</button>
+        <div class="address-bar"><span class="lock-mark" aria-hidden="true">◆</span><input class="address-text" id="addressText" aria-label="عنوان الصفحة" value="cipherx://academy/termux" readonly><span class="key-hint">LOCAL</span></div>
+      </div>
+    </div>
+
+    <header class="app-head">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">CX</div>
+        <div><h1 class="brand-title">Cipher_X</h1><p class="brand-subtitle">مختبر المعرفة الرقمية</p></div>
+      </div>
+      <div class="head-meta">
+        <span class="edition">FIELD GUIDE / 01</span>
+        <label class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input class="search-input" id="searchInput" type="search" placeholder="ابحث في الوحدات..." aria-label="ابحث في محتوى الكورس"></label>
+      </div>
+    </header>
+
+    <div class="progress-row" aria-label="تقدم الكورس">
+      <span class="progress-label">إنجاز الكورس</span>
+      <div class="progress-track" role="progressbar" aria-label="نسبة إنجاز الكورس" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-count" id="progressCount">0 / 8</span>
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <p class="side-label">COURSE INDEX</p>
+        <nav class="module-nav" id="moduleNav" aria-label="وحدات الكورس"></nav>
+        <div class="sidebar-note">
+          <div class="note-tag"><span class="note-dot"></span><span>مسار تعلّم مسؤول</span></div>
+          <p>المعرفة الأمنية تُستخدم لحماية الأنظمة التي تملكها أو لديك إذن صريح لاختبارها.</p>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="content-inner" id="articleView"></div>
+        <section class="content-inner search-results" id="searchResults" aria-live="polite"></section>
+      </main>
+    </div>
+    <footer class="footer"><span>CIPHER_X / LEARNING ENVIRONMENT</span><span>تعلّم. اختبر بأمان. ساهم في الحماية.</span></footer>
+  </div>
+
+  <script>
+    const modules = [
+      {
+        id: "termux", title: "أساسيات Termux", short: "Termux", time: "6 دقائق",
+        lead: "ابدأ ببيئة طرفية على Android، وتعرّف إلى الحزم والملفات قبل تثبيت أي أدوات إضافية.",
+        sections: [
+          { title: "ما هو Termux؟", text: "محاكي طرفية وبيئة Linux مصغّرة تعمل على Android. يتيح إدارة الحزم وتشغيل أدوات سطر الأوامر، لكنه لا يحوّل الهاتف إلى نظام Linux كامل ولا يحتاج عادةً إلى صلاحيات root للتعلّم الأساسي." },
+          { title: "التثبيت والتجهيز", text: "نزّل التطبيق من مصدره الرسمي الموثوق، وتجنّب ملفات APK المعاد رفعها من مواقع مجهولة. امنح إذن الملفات عند الحاجة فقط، ولا تمنح صلاحيات لا تتطلبها المهمة.", points: ["تحقق من اسم الناشر ومصدر التنزيل قبل التثبيت.", "حدّث الحزم أول مرة، ثم راجع التحديثات دوريًا.", "استخدم بيئة اختبار منفصلة عند تجربة أدوات أمنية."] },
+          { title: "أوامر البداية", text: "هذه الأوامر لإدارة بيئتك وملفاتك المحلية:", code: "pkg update && pkg upgrade\npkg install python\npwd\nls\nmkdir practice\ncd practice\nclear" },
+          { title: "مدير الحزم", text: "يتيح pkg البحث عن البرامج المتاحة وقراءة وصفها قبل التثبيت. ثبّت ما تحتاجه فقط، وتحقق من المصدر والصلاحيات المطلوبة." , code: "pkg search <keyword>\npkg show <package_name>\npkg install <package_name>" }
+        ]
+      },
+      {
+        id: "linux", title: "أساسيات Linux Terminal", short: "Linux", time: "8 دقائق",
+        lead: "أتقن التنقل والصلاحيات والعمليات اليومية؛ هذه المهارات هي الأساس لأي عمل تقني آمن.",
+        sections: [
+          { title: "التنقل وإدارة الملفات", text: "ابدأ بفهم موقعك الحالي، ثم استخدم أوامر الملفات بحذر. انتبه خصوصًا للأوامر التي تحذف أو تغيّر محتوى واسعًا.", code: "pwd\nls -la\ncd ~/Documents\nmkdir practice\nfind . -type f -name '*.log'" },
+          { title: "البحث والصلاحيات", text: "grep للبحث داخل النصوص، وchmod لتعديل صلاحيات ملف تملكه. طبّق أقل قدر من الصلاحيات اللازمة، ولا تستخدم صلاحيات المدير دون حاجة واضحة.", code: "grep -n 'ERROR' app.log\nchmod 640 private.txt\nchown user:group private.txt" },
+          { title: "الحزم والخدمات", text: "تختلف الأوامر حسب التوزيعة. في Debian وUbuntu تُستخدم apt للحزم وsystemctl لإدارة الخدمات على الأنظمة التي تعمل بـsystemd.", code: "sudo apt update\nsystemctl status <service_name>" },
+          { title: "التنزيل والاتصال البعيد", text: "استخدم SSH للاتصال بخادم مصرح لك بإدارته. نزّل البرامج من مواقعها الرسمية، وتحقق من التوقيع أو قيمة التجزئة عندما يوفرها الناشر." }
+        ]
+      },
+      {
+        id: "recon", title: "فهم الأصول والمعلومات العامة", short: "الأصول", time: "7 دقائق",
+        lead: "التعرّف إلى الأصول جزء من إدارة المخاطر. تعلّم المصطلحات وحدود التفويض قبل أي جمع للمعلومات.",
+        sections: [
+          { title: "جرد الأصول", text: "ابدأ بقائمة الأنظمة والنطاقات والخدمات التي تملكها مؤسستك، مع مالك واضح وغرض تجاري لكل أصل. لا تفترض أن عنوانًا عامًا يعني وجود إذن للاختبار." },
+          { title: "مصادر المعلومات", text: "تشرح سجلات Whois بيانات تسجيل النطاق، بينما تربط سجلات DNS الأسماء بالخدمات. يمكن أن تساعد هذه المعلومات فرق الدفاع على اكتشاف إعدادات قديمة أو غير مقصودة.", points: ["حدد النطاقات المملوكة واكتبها ضمن نطاق العمل.", "استخدم بيانات تدريبية أو نطاقًا محليًا في التمارين.", "وثّق المصدر والوقت والنتيجة، وقلّل جمع البيانات الشخصية."] },
+          { title: "أدوات الاستكشاف", text: "تُستخدم Nmap لجرد الخدمات في الشبكات المصرح بها. وتعرض Whois بيانات تسجيل النطاق، بينما تساعد DNSenum وSublist3r في مراجعة معلومات DNS والنطاقات الفرعية. استخدم بياناتك أو مختبرًا تدريبيًا، ولا تفحص عناوين أو نطاقات عامة دون تفويض مكتوب." },
+          { title: "حدود الاختبار", text: "أدوات الاستكشاف قد تولّد حركة مرور أو تكشف معلومات حساسة. قبل استخدامها، احصل على تفويض مكتوب يحدد الأنظمة والوقت والطرق المسموحة، والتزم به حرفيًا." }
+        ]
+      },
+      {
+        id: "vuln", title: "تحليل الثغرات دفاعيًا", short: "الثغرات", time: "8 دقائق",
+        lead: "الهدف من تقييم الثغرات هو تقليل المخاطر وإصلاح السبب، لا تجربة استغلال أنظمة حقيقية.",
+        sections: [
+          { title: "المفاهيم الأساسية", text: "الثغرة ضعف قد يؤثر في السرية أو السلامة أو التوافر. تساعد معرفات CVE وقواعد CVSS على توحيد وصف المشكلات وتقدير شدتها، لكنها لا تغني عن تحليل سياق نظامك." },
+          { title: "منهج مراجعة آمن", points: ["احصر الإصدارات والمكونات التي تستخدمها.", "راجع النشرات الأمنية الرسمية وسجّل المكونات المتأثرة.", "أعد الاختبار في بيئة تجريبية معزولة وببيانات غير حقيقية.", "عالج السبب، ثم تحقق من الإصلاح وسجّل النتيجة."] },
+          { title: "أمن تطبيقات الويب", text: "تعلّم مبادئ OWASP مثل التحقق من المدخلات، التحكم في الوصول، وإدارة الجلسات. يمكن استخدام تطبيقات تدريبية مصممة للتعلّم داخل جهاز افتراضي معزول، وليس على مواقع عامة." },
+          { title: "ماسحات الويب", text: "أدوات مثل Nikto وSQLMap قد ترسل طلبات نشطة وتؤثر في الخدمة أو البيانات. تعلّم نتائجها ومخاطرها من التوثيق، ولا تستخدمها إلا على تطبيق تدريبي ضعيف عمدًا أو نظام تملكه مع تصريح صريح؛ ابدأ بمراجعة الإعدادات والسجلات والإصلاحات بدل اختبار مواقع عامة." },
+          { title: "التقارير", text: "يتضمن التقرير الجيد وصفًا مختصرًا للأثر، نطاقًا متأثرًا، دليلًا غير حساس، خطوات إصلاح، ومستوى أولوية. لا ترفق أسرارًا أو بيانات مستخدمين." }
+        ]
+      },
+      {
+        id: "secure-testing", title: "اختبار أمني داخل المختبر", short: "المختبر", time: "6 دقائق",
+        lead: "افهم دورة التحقق الأمني من منظور المدافع، مع إبقاء التجارب داخل مختبر تملكه أو تملك تصريحًا لاستخدامه.",
+        sections: [
+          { title: "دورة العمل الدفاعية", points: ["حدّد الهدف والنطاق والتصريح قبل بدء أي اختبار.", "استخدم بيئة معزولة ولقطة استعادة وبيانات وهمية.", "تحقق من وجود الخلل بأقل طريقة تأثيرًا.", "أوقف الاختبار عند ظهور أثر غير متوقع.", "أصلح السبب، ثم أعد التحقق ووثّق الدرس المستفاد."] },
+          { title: "منصات الاختبار", text: "Metasploit إطار لاختبار أمني مصرح به، وAircrack-ng مجموعة أدوات لتقييم إعدادات Wi-Fi. قد تؤدي إساءة استخدامها إلى اختراق أنظمة أو تعطيل اتصالات؛ تعرّف إلى المفاهيم في مختبر معزول وأجهزة تملكها، دون تشغيل استغلالات أو اعتراض شبكات الآخرين." },
+          { title: "ما الذي لا تفعله؟", text: "لا تشغّل شيفرات استغلال، ولا تغيّر بيانات أو تتجاوز ضوابط الدخول، ولا تختبر عناوين أو خدمات لا تملكها. أسماء الأدوات وحدها لا تمنح إذنًا؛ التفويض المكتوب هو الحد الفاصل." },
+          { title: "بدائل آمنة للتعلّم", text: "استخدم دروسًا نظرية، شيفرات توضيحية غير قابلة للتشغيل، أو مختبرات تعليمية معزولة توفرها جهة موثوقة. ابدأ بفهم كيفية اكتشاف الخلل وإصلاحه وتأثيره على الأعمال." }
+        ]
+      },
+      {
+        id: "credentials", title: "حماية كلمات المرور والهوية", short: "الهوية", time: "7 دقائق",
+        lead: "بدل اختبار كلمات مرور الآخرين، ركّز على تصميم تخزين آمن وممارسات تقلّل فرص الاستيلاء على الحسابات.",
+        sections: [
+          { title: "التخزين الصحيح", text: "لا تخزّن كلمات المرور كنص صريح أو بتجزئة سريعة عامة. استخدم خوارزمية مخصصة لتخزين كلمات المرور مثل Argon2id أو bcrypt مع إعدادات موصى بها ومملّحة، واستعن بمكتبة موثوقة." },
+          { title: "تقوية الحسابات", points: ["فعّل المصادقة متعددة العوامل، وفضّل مفاتيح المرور عند توفرها.", "استخدم مدير كلمات مرور موثوقًا وكلمات فريدة لكل خدمة.", "ضع حدودًا للمحاولات وأضف تنبيهات ومراقبة للسلوك غير المعتاد.", "لا تشارك ملفات التجزئة أو كلمات المرور الحقيقية في التدريب."] },
+          { title: "أدوات تدقيق الاعتمادات", text: "توجد أدوات مثل Hydra وJohn the Ripper وHashcat لاختبارات مرتبطة بكلمات المرور والتجزئات، وقد تُستغل لمحاولات دخول أو كشف أسرار. لا تستخدمها على حسابات أو تجزئات حقيقية؛ ركّز دفاعيًا على بيانات اصطناعية، ومراجعة التخزين، ومصادقة متعددة العوامل، وحدود للمحاولات." },
+          { title: "تدقيق دفاعي", text: "اختبر سياسات مؤسستك على بيانات اصطناعية وبموافقة المالك. عند اكتشاف كلمة مرور مكشوفة، ألغِها ودوّر الأسرار المتأثرة، ثم راجع سبب التسريب وسجلات الوصول." }
+        ]
+      },
+      {
+        id: "network", title: "مراقبة الشبكات والاتصالات", short: "الشبكات", time: "8 دقائق",
+        lead: "تحليل الشبكات مفيد لفهم الأداء واكتشاف السلوك غير المعتاد، بشرط حماية الخصوصية والعمل ضمن نطاق مصرح.",
+        sections: [
+          { title: "قراءة حركة الشبكة", text: "تعرض أدوات تحليل البروتوكولات مثل Wireshark تفاصيل الحزم. استخدم ملفات التقاط تدريبية أو حركة مختبرك، واحجب بيانات التعريف الحساسة قبل مشاركة أي ملف." },
+          { title: "أدوات الاتصال", text: "Netcat أداة اتصال عامة قد تكون نافعة للتشخيص داخل مختبر، لكن إعداد مستمعات أو نقل بيانات دون ضوابط قد يكشف النظام. استخدم أدوات نقل مشفرة وموثوقة في العمل الحقيقي، ولا تتعامل إلا مع أجهزة تملكها." },
+          { title: "مبادئ دفاعية", points: ["افهم الفرق بين TCP وUDP وDNS وHTTP وTLS.", "استخدم تشفيرًا حديثًا، وقلّل الخدمات المكشوفة إلى ما تحتاجه.", "راجع السجلات والتنبيهات بحثًا عن أنماط غير مألوفة.", "لا تلتقط حركة مستخدمين آخرين دون موافقة صريحة."] },
+          { title: "Wi-Fi", text: "احمِ الشبكة بتشفير حديث وكلمة مرور قوية، وحدّث نقطة الوصول، وعطّل الميزات غير المستخدمة. الاختبارات اللاسلكية تتطلب تفويضًا صريحًا وأجهزة مختبر تملكها؛ لا تحاول اعتراض اتصالات الآخرين." },
+          { title: "أدوات وقيود", text: "بعض أدوات تحليل الشبكة تحتاج نظام Linux كاملًا أو بطاقة متوافقة، وقد لا تعمل على Android أو Termux. لا تمنح تطبيقًا صلاحيات root أو وصولًا للشبكة إلا بعد فهم أثر ذلك." }
+        ]
+      },
+      {
+        id: "practice", title: "السكربتات والأخلاقيات", short: "المسؤولية", time: "6 دقائق",
+        lead: "اجعل الأتمتة قابلة للمراجعة، واعتبر الخصوصية والتفويض جزءًا من الحل التقني.",
+        sections: [
+          { title: "بدايات Bash", text: "يمكن للسكربتات أتمتة مهام محلية متكررة مثل فحص وجود ملفات تقارير. اختبرها على مجلد تجريبي، واقرأ كل أمر قبل تشغيله.", code: "#!/usr/bin/env bash\nset -eu\nfor file in ./reports/*.txt; do\n  [ -f \"$file\" ] || continue\n  printf 'Report: %s\\n' \"$file\"\ndone" },
+          { title: "بيئة تدريب", points: ["استخدم آلة افتراضية معزولة وشبكة داخلية عند دراسة Linux الأمني.", "خذ لقطة استعادة قبل التغيير، ولا تربط المختبر بحساباتك أو ملفاتك الحقيقية.", "استخدم بيانات وهمية، وحدّث النظام، واحذف المختبر بعد انتهاء الحاجة."] },
+          { title: "قواعد المسؤولية", text: "لا تختبر إلا ما تملكه أو ما لديك إذن مكتوب لاختباره. لا تجمع بيانات شخصية بلا ضرورة، ولا تتجاوز حدود التفويض. عند العثور على مشكلة، أبلغ المالك عبر قناة مسؤولة وتوقف عن التحقق إذا ظهر خطر على الخدمة." },
+          { title: "مسار التعلّم التالي", text: "تابع أساسيات الشبكات وLinux، ثم تعلّم البرمجة الآمنة ومراجعة السجلات والاستجابة للحوادث. اقرأ التوثيق الرسمي، وسجّل ما تعلّمته، واطلب مراجعة من مختص قبل تطبيق أي تغيير إنتاجي." }
+        ]
+      }
+    ];
+
+    const nav = document.getElementById("moduleNav");
+    const articleView = document.getElementById("articleView");
+    const searchResults = document.getElementById("searchResults");
+    const searchInput = document.getElementById("searchInput");
+    const addressText = document.getElementById("addressText");
+    const progressFill = document.getElementById("progressFill");
+    const progressCount = document.getElementById("progressCount");
+    const progressBar = document.querySelector(".progress-track");
+    const completeKey = "cipher-x-completed-v1";
+    let completed = new Set();
+    let currentIndex = 0;
+    let history = [0];
+    let historyPosition = 0;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(completeKey) || "[]");
+      if (Array.isArray(saved)) completed = new Set(saved.filter(id => modules.some(module => module.id === id)));
+    } catch { completed = new Set(); }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+    }
+
+    function renderNav() {
+      nav.innerHTML = modules.map((module, index) => `
+        <button class="module-link ${index === currentIndex ? "active" : ""} ${completed.has(module.id) ? "done" : ""}" type="button" data-index="${index}" aria-current="${index === currentIndex ? "page" : "false"}">
+          <span class="module-num">${String(index + 1).padStart(2, "0")}</span>
+          <span class="module-link-title">${module.title}</span>
+          ${completed.has(module.id) ? '<span class="done-tick" aria-label="مكتملة">✓</span>' : ""}
+        </button>`).join("");
+    }
+
+    function renderProgress() {
+      const count = completed.size;
+      const percent = Math.round(count / modules.length * 100);
+      progressFill.style.width = `${percent}%`;
+      progressCount.textContent = `${count} / ${modules.length}`;
+      progressBar.setAttribute("aria-valuenow", String(percent));
+    }
+
+    function renderArticle() {
+      const module = modules[currentIndex];
+      addressText.value = `cipherx://academy/${module.id}`;
+      const sections = module.sections.map(section => `
+        <section class="lesson-section">
+          <h2>${section.title}</h2>
+          ${section.text ? `<p>${section.text}</p>` : ""}
+          ${section.points ? `<ul>${section.points.map(point => `<li>${point}</li>`).join("")}</ul>` : ""}
+          ${section.code ? `<pre class="code-block"><code>${escapeHTML(section.code)}</code></pre>` : ""}
+        </section>`).join("");
+      const isDone = completed.has(module.id);
+      articleView.innerHTML = `
+        <div class="article-topline"><span class="unit-tag">UNIT ${String(currentIndex + 1).padStart(2, "0")} / ${String(modules.length).padStart(2, "0")}</span><span class="reading-time">${module.time} قراءة</span></div>
+        <h1 class="article-title">${module.title}</h1>
+        <p class="article-lead">${module.lead}</p>
+        <div class="article-rule"><span>FIELD NOTES</span></div>
+        ${sections}
+        <aside class="callout"><span class="callout-mark">!</span><span>التطبيق العملي محصور في أنظمة تملكها أو لديك تصريح مكتوب لاختبارها. عند الشك، توقّف واستوضح النطاق.</span></aside>
+        <div class="article-actions">
+          <button class="complete-button" id="completeButton" type="button" aria-pressed="${isDone}">${isDone ? "✓" : "○"}<span>${isDone ? "تم إكمال الوحدة" : "تحديد الوحدة كمكتملة"}</span></button>
+          <button class="next-button" id="nextButton" type="button" ${currentIndex === modules.length - 1 ? "disabled" : ""}>الوحدة التالية <span aria-hidden="true">←</span></button>
+        </div>`;
+      renderNav();
+      renderProgress();
+      searchResults.classList.remove("show");
+      articleView.hidden = false;
+    }
+
+    function navigateTo(index, addHistory = true) {
+      if (index < 0 || index >= modules.length) return;
+      searchInput.value = "";
+      if (index === currentIndex) {
+        renderArticle();
+        return;
+      }
+      currentIndex = index;
+      if (addHistory) {
+        history = history.slice(0, historyPosition + 1);
+        history.push(index);
+        historyPosition = history.length - 1;
+      }
+      document.getElementById("backButton").disabled = historyPosition <= 0;
+      document.getElementById("forwardButton").disabled = historyPosition >= history.length - 1;
+      renderArticle();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function highlight(text, query) {
+      const safeText = escapeHTML(text);
+      const safeQuery = escapeHTML(query);
+      if (!safeQuery) return safeText;
+      const escaped = safeQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return safeText.replace(new RegExp(`(${escaped})`, "gi"), "<mark>$1</mark>");
+    }
+
+    function runSearch(query) {
+      const normalized = query.trim().toLocaleLowerCase("ar");
+      if (!normalized) {
+        searchResults.classList.remove("show");
+        articleView.hidden = false;
+        renderNav();
+        return;
+      }
+      const matches = modules.map((module, index) => ({ module, index, haystack: [module.title, module.lead, ...module.sections.flatMap(section => [section.title, section.text || "", ...(section.points || [])])].join(" ").toLocaleLowerCase("ar") })).filter(item => item.haystack.includes(normalized));
+      articleView.hidden = true;
+      searchResults.classList.add("show");
+      searchResults.innerHTML = `<div class="article-topline"><span class="unit-tag">SEARCH / ${matches.length} RESULTS</span></div><h1 class="article-title">نتائج البحث</h1>${matches.length ? matches.map(({ module, index }) => {
+        const source = [module.lead, ...module.sections.map(section => section.text || ""), ...module.sections.flatMap(section => section.points || [])].join(" ");
+        const matchIndex = source.toLocaleLowerCase("ar").indexOf(normalized);
+        const start = Math.max(0, matchIndex - 45);
+        const snippet = source.slice(start, Math.min(source.length, matchIndex + normalized.length + 85));
+        return `<button class="search-result" type="button" data-index="${index}"><span class="result-title">${highlight(module.title, query)}</span><span class="result-snippet">${start ? "…" : ""}${highlight(snippet, query)}${start + snippet.length < source.length ? "…" : ""}</span></button>`;
+      }).join("") : '<p class="empty-state">لا توجد نتائج مطابقة. جرّب كلمة أخرى.</p>'}`;
+      renderNav();
+    }
+
+    nav.addEventListener("click", event => {
+      const button = event.target.closest("[data-index]");
+      if (button) navigateTo(Number(button.dataset.index));
+    });
+    searchResults.addEventListener("click", event => {
+      const button = event.target.closest("[data-index]");
+      if (button) {
+        searchInput.value = "";
+        runSearch("");
+        navigateTo(Number(button.dataset.index));
+      }
+    });
+    searchInput.addEventListener("input", event => runSearch(event.target.value));
+    articleView.addEventListener("click", event => {
+      if (event.target.closest("#completeButton")) {
+        const id = modules[currentIndex].id;
+        if (completed.has(id)) completed.delete(id); else completed.add(id);
+        try { localStorage.setItem(completeKey, JSON.stringify([...completed])); } catch { /* Storage may be disabled. */ }
+        renderArticle();
+      }
+      if (event.target.closest("#nextButton")) navigateTo(currentIndex + 1);
+    });
+    document.getElementById("backButton").addEventListener("click", () => {
+      if (historyPosition > 0) {
+        historyPosition--;
+        currentIndex = history[historyPosition];
+        document.getElementById("backButton").disabled = historyPosition <= 0;
+        document.getElementById("forwardButton").disabled = false;
+        renderArticle();
+      }
+    });
+    document.getElementById("forwardButton").addEventListener("click", () => {
+      if (historyPosition < history.length - 1) {
+        historyPosition++;
+        currentIndex = history[historyPosition];
+        document.getElementById("backButton").disabled = false;
+        document.getElementById("forwardButton").disabled = historyPosition >= history.length - 1;
+        renderArticle();
+      }
+    });
+    document.getElementById("refreshButton").addEventListener("click", renderArticle);
+    renderArticle();
+  </script>
+</body>
+</html>
